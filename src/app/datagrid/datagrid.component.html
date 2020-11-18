@@ -1,0 +1,94 @@
+<table class="datagrid">
+  <thead>
+    <tr class="datagrid__header">
+      <th class="datagrid__header__cell">
+        <input
+          #selectAll
+          class="datagrid__header__ckbox"
+          type="checkbox"
+          name="selectAll"
+          value="selectAll"
+          (click)="onSelectAllClicked(selectAll.checked)"
+        />
+      </th>
+      <th colspan="2" class="datagrid__header__cell">
+        <span [hidden]="selectedRowCount === 0" class="padR25"
+          >Selected: {{ selectedRowCount }}</span
+        >
+        <span [hidden]="selectedRowCount > 0" class="padR25"
+          >None Selected</span
+        >
+      </th>
+      <!-- Making sure the last action element spans across the rest of grid -->
+      <th
+        [attr.colspan]="headerColumnsCount - 1"
+        class="datagrid__header__cell"
+      >
+        <div
+          class="datagrid__header__actions"
+          tabindex="0"
+          role="button"
+          (click)="download()"
+        >
+          <span class="material-icons"> get_app </span>
+          <span>Download Selected</span>
+        </div>
+      </th>
+    </tr>
+    <!-- Adding special className to "status" column to correctly align  -->
+    <tr class="datagrid__header">
+      <th class="datagrid__header__cell"></th>
+      <th
+        *ngFor="let column of headerColumns"
+        class="datagrid__header__cell"
+        [ngClass]="{ padL25: column === 'status' }"
+      >
+        {{ column | titlecase }}
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <!-- Adding click event listener to full row making so user can select by
+    clciking anywhere rather than just checkbox. -->
+    <tr
+      *ngFor="let row of dataSource; index as i"
+      class="datagrid__body"
+      [ngClass]="{ datagrid__body__selected: row.checked }"
+      (click)="onRowSelectionChanged(i, row)"
+    >
+      <td class="datagrid__body__cell">
+        <input
+          class="datagrid__body__ckbox"
+          type="checkbox"
+          name="rowSelect"
+          [checked]="row.checked"
+          [disabled]="row.status === 'scheduled'"
+          [value]="i"
+        />
+      </td>
+      <!-- In scenarios of rows with missing colums, making sure the values are
+      displayed under right header -->
+      <td *ngFor="let column of headerColumns" class="datagrid__body__cell">
+        <div class="datagrid__body__cell__rows">
+          <ng-container *ngIf="column === 'status'">
+            <span
+              *ngIf="row[column] === 'available'"
+              class="datagrid__body__available"
+            >
+            </span>
+            <span
+              *ngIf="row[column] !== 'available'"
+              class="datagrid__body__unAvailable"
+            >
+            </span>
+          </ng-container>
+
+          <span [innerHTML]="row[column] | titlecase"></span>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<span class="info">
+  Note: Only rows with status as "Available" can be selected for download.
+</span>
